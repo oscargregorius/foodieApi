@@ -6,8 +6,17 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const util = require("util");
 const crypto = require("crypto");
+var session = require("express-session");
 
-app.use(bodyParser.urlencoded({ extended: false }));
+//app.use(bodyParser.urlencoded({ extended: false }));
+app.use(
+  session({
+    secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
+    saveUninitialized: true,
+    resave: false,
+  }),
+  bodyParser.urlencoded({ extended: false })
+);
 app.use(bodyParser.json());
 const db_name = path.join("./foodie.db");
 const db = new sqlite3.Database(db_name, (err) => {
@@ -58,8 +67,21 @@ app.post("/rest/login", async (req, res) => {
     "SELECT * FROM Users WHERE username = ? AND password = ?",
     [userToLogin.username, encryptedPassword]
   );
-
+  if (user[0]) {
+    req.session.user = user[0];
+  }
   res.json(user[0]);
+});
+
+app.get("/rest/whoAmI", async (req, res) => {
+  if (req.session?.user) {
+    const query =
+      ("SELECT * FROM Users WHERE username = ?", [req.session?.user.username]);
+    const user = await db.all(query);
+    res.json(user);
+  } else {
+    res.json({ error: "bad credentials" });
+  }
 });
 
 app.listen(4000, () => {
