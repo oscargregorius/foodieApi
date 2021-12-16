@@ -7,6 +7,7 @@ const path = require("path");
 const util = require("util");
 var session = require("express-session");
 const userModule = require("./Users");
+const menuModule = require("./Menu.js")
 const acl = require("./acl");
 
 app.use(
@@ -31,6 +32,8 @@ db.run = util.promisify(db.run);
 
 app.use(acl);
 userModule(app, db);
+menuModule(app, db);
+
 
 app.get("/", (req, res) => {
   res.json({ status: "connected" });
