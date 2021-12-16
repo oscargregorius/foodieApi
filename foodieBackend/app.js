@@ -7,8 +7,8 @@ const path = require("path");
 const util = require("util");
 const crypto = require("crypto");
 var session = require("express-session");
+const userModule = require("./Users");
 
-//app.use(bodyParser.urlencoded({ extended: false }));
 app.use(
   session({
     secret: "thisismysecrctekeyfhrgfgrfrty84fwir767",
@@ -37,51 +37,10 @@ const getHash = (password) => {
   return hash;
 };
 
+userModule(app, db);
+
 app.get("/", (req, res) => {
   res.json({ status: "connected" });
-});
-
-app.get("/users", async (req, res) => {
-  const query = "SELECT * FROM Users";
-  const data = await db.all(query);
-  res.json(data);
-});
-
-app.post("/users", async (req, res) => {
-  const user = req.body;
-  const encryptedPassword = getHash(user.password);
-  const role = "USER";
-  const result = await db.all("INSERT INTO Users VALUES(?,?,?,?)", [
-    null,
-    user.username,
-    encryptedPassword,
-    role,
-  ]);
-  res.json({ status: "success" });
-});
-
-app.post("/rest/login", async (req, res) => {
-  const userToLogin = req.body;
-  let encryptedPassword = getHash(userToLogin.password);
-  let user = await db.all(
-    "SELECT * FROM Users WHERE username = ? AND password = ?",
-    [userToLogin.username, encryptedPassword]
-  );
-  if (user[0]) {
-    req.session.user = user[0];
-  }
-  res.json(user[0]);
-});
-
-app.get("/rest/whoAmI", async (req, res) => {
-  if (req.session?.user) {
-    const query =
-      ("SELECT * FROM Users WHERE username = ?", [req.session?.user.username]);
-    const user = await db.all(query);
-    res.json(user);
-  } else {
-    res.json({ error: "bad credentials" });
-  }
 });
 
 app.listen(4000, () => {
