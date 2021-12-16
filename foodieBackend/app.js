@@ -5,9 +5,9 @@ const sqlite3 = require("sqlite3").verbose();
 const bodyParser = require("body-parser");
 const path = require("path");
 const util = require("util");
-const crypto = require("crypto");
 var session = require("express-session");
 const userModule = require("./Users");
+const acl = require("./acl");
 
 app.use(
   session({
@@ -28,15 +28,8 @@ const db = new sqlite3.Database(db_name, (err) => {
 
 db.all = util.promisify(db.all);
 db.run = util.promisify(db.run);
-const salt = "harrypotter2021".toString("hex");
 
-const getHash = (password) => {
-  const hash = crypto
-    .pbkdf2Sync(password, salt, 1000, 64, `sha512`)
-    .toString("hex");
-  return hash;
-};
-
+app.use(acl);
 userModule(app, db);
 
 app.get("/", (req, res) => {

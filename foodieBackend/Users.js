@@ -15,7 +15,7 @@ module.exports = (app, db) => {
     res.json(data);
   });
 
-  app.post("/users", async (req, res) => {
+  app.post("/user", async (req, res) => {
     const user = req.body;
     const query = "SELECT username FROM Users WHERE username = ?";
     const userExists = await db.all(query, [user.username]);

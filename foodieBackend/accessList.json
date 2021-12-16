@@ -1,0 +1,10 @@
+[
+  {
+    "path": "/users",
+    "roles": "ADMIN"
+  },
+  {
+    "path": "/rest/promoteUser",
+    "roles": "ADMIN"
+  }
+]
