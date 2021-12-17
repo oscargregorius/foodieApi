@@ -10,5 +10,9 @@
   {
     "path": "/rest/addToMenu",
     "roles": "ADMIN"
+  },
+  {
+    "path": "/rest/updateOrder",
+    "roles": "ADMIN"
   }
 ]

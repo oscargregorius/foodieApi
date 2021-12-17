@@ -18,20 +18,40 @@ module.exports = (app, db) => {
     }
   });
 
-
   app.post("/rest/addOrder", async (req, res) => {
     const orderId = req.body;
-    const query = "SELECT * FROM Menu WHERE id = ?"
+    const query = "SELECT * FROM Menu WHERE id = ?";
 
     try {
-      const order = await db.all(query, [orderId.id])
-      await db.all("INSERT INTO Orders VALUES(?,?)", [null, orderId.id]);
+      const order = await db.all(query, [orderId.id]);
+      if (order.length <= 0) {
+        res.json({ status: "not a valid menu item" });
+        return;
+      }
+      await db.all("INSERT INTO Orders VALUES(?,?,?)", [
+        null,
+        orderId.id,
+        "InProgress",
+      ]);
       res.json({ status: "success" });
     } catch (error) {
-      res.json({status: "Error"})
+      res.json({ status: "Error" });
     }
-    
-  })
+  });
 
-
+  app.put("/rest/updateOrder", async (req, res) => {
+    const status = req.body;
+    const query = "UPDATE Orders SET status = ? WHERE id = ?";
+    try {
+      const order = await db.all("SELECT * FROM Orders WHERE id = ?", [status.id]);
+      if (order.length <= 0) {
+        res.json({ status: "order does not exists" });
+        return;
+      }
+      await db.all(query, [status.status, status.id]);
+      res.json({ status: "success" });
+    } catch (error) {
+      res.json({ status: error });
+    }
+  });
 };
