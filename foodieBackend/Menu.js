@@ -24,8 +24,9 @@ module.exports = (app, db) => {
     const query = "SELECT * FROM Menu WHERE id = ?"
 
     try {
-      const order = await db.all(query, [orderId])
-      
+      const order = await db.all(query, [orderId.id])
+      await db.all("INSERT INTO Orders VALUES(?,?)", [null, orderId.id]);
+      res.json({ status: "success" });
     } catch (error) {
       res.json({status: "Error"})
     }
