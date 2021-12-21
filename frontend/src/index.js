@@ -7,6 +7,7 @@ import thunk from "redux-thunk";
 import store from "./redux/store";
 import { Provider } from "react-redux";
 import { composeWithDevTools } from "redux-devtools-extension";
+import "./index.css";
 import Router from "./Router";
 
 const stores = createStore(store, composeWithDevTools(applyMiddleware(thunk)));
@@ -14,9 +15,7 @@ const stores = createStore(store, composeWithDevTools(applyMiddleware(thunk)));
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={stores}>
-      <Router>
-        <App />
-      </Router>
+      <App />
     </Provider>
   </React.StrictMode>,
   document.getElementById("root")

@@ -5,9 +5,9 @@ import Menu from "./pages/Menu/Menu";
 const Router = ({ children }) => {
   return (
     <MenuRouter>
+      {children}
       <Route exact path="/" component={Home} />
       <Route exact path="/menu" component={Menu} />
-      {children}
     </MenuRouter>
   );
 };

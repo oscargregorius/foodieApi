@@ -6,13 +6,17 @@ import { Wrapper } from "./StyledMenu";
 const Menu = () => {
   const dispatch = useDispatch();
   const menu = useSelector((selector) => selector.menuReducer);
+
   useEffect(() => {
+    if (menu.length) {
+      return;
+    }
     dispatch(fetchMenu);
   }, []);
 
   return (
     <Wrapper>
-      {menu?.length &&
+      {menu?.length > 0 &&
         menu.map((item) => <MenuItem key={item.id} item={item} />)}
     </Wrapper>
   );
