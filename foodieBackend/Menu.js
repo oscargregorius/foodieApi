@@ -1,24 +1,22 @@
 module.exports = (app, db) => {
-  app.get("/rest/menu", async (req, res) => {
-    const query = "SELECT * FROM Menu";
+  // food
+  app.get("/rest/food", async (req, res) => {
+    const query = "SELECT * FROM Food";
     const list = await db.all(query);
     res.json(list);
   });
 
-  app.get("/rest/menuitem/:id", async (req, res) => {
-    const id = req.param("id");
-    const query = "SELECT * FROM Menu WHERE id = ?";
-    try {
-      const item = await db.all(query, [id]);
-      if (item) {
-        console.log(item);
-        res.json(item);
-      } else {
-        res.json({ status: "error" });
-      }
-    } catch (error) {
-      res.json({ status: error });
-    }
+  // drinks
+  app.get("/rest/drink", async (req, res) => {
+    const query = "SELECT * FROM Drink";
+    const list = await db.all(query);
+    res.json(list);
+  });
+  // sides
+  app.get("/rest/sides", async (req, res) => {
+    const query = "SELECT * FROM Sides";
+    const list = await db.all(query);
+    res.json(list);
   });
 
   app.post("/rest/addToMenu", async (req, res) => {
@@ -35,24 +33,31 @@ module.exports = (app, db) => {
   });
 
   app.post("/rest/addOrder", async (req, res) => {
-    const orderId = req.body;
-    const query = "SELECT * FROM Menu WHERE id = ?";
+    const menu = req.body;
+    const foodId = menu.foodId;
+    const drinkId = menu.drinkId;
+    const sideId = menu.sideId;
+    const total = menu.total;
+    let order;
 
+    const query = "INSERT INTO Order VALUES(?,?,?,?,?,?)";
     try {
-      const order = await db.all(query, [orderId.id]);
-      if (order.length <= 0) {
-        res.json({ status: "not a valid menu item" });
-        return;
-      }
-      await db.all("INSERT INTO Orders VALUES(?,?,?)", [
+      order = await db.all(query, [
         null,
-        orderId.id,
-        "InProgress",
+        foodId,
+        drinkId,
+        sideId,
+        total,
+        "On going",
       ]);
-      res.json({ status: "success" });
     } catch (error) {
-      res.json({ status: "Error" });
+      res.json(error);
     }
+    if (order.length <= 0) {
+      res.json({ status: "Something went wrong" });
+      return;
+    }
+    res.json(order);
   });
 
   app.put("/rest/updateOrder", async (req, res) => {
