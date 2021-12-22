@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   StyledNav,
   StyledToolBar,
@@ -22,8 +22,8 @@ function Navbar() {
         <StyledNavigation onClick={() => history.push("/")}>
           home
         </StyledNavigation>
-        <StyledNavigation onClick={() => history.push("/menu")}>
-          menu
+        <StyledNavigation onClick={() => history.push("/food")}>
+          order
         </StyledNavigation>
         {user?.role === "ADMIN" && (
           <StyledNavigation onClick={() => history.push("/allUsers")}>
