@@ -4,7 +4,7 @@ import CardBox from "../Card/CardBox";
 function MenuItem({ item }) {
   return (
     <div>
-      <CardBox title={item.title} />
+      <CardBox title={item.title} id={item.id} />
     </div>
   );
 }

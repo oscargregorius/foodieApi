@@ -5,6 +5,22 @@ module.exports = (app, db) => {
     res.json(list);
   });
 
+  app.get("/rest/menuitem/:id", async (req, res) => {
+    const id = req.param("id");
+    const query = "SELECT * FROM Menu WHERE id = ?";
+    try {
+      const item = await db.all(query, [id]);
+      if (item) {
+        console.log(item);
+        res.json(item);
+      } else {
+        res.json({ status: "error" });
+      }
+    } catch (error) {
+      res.json({ status: error });
+    }
+  });
+
   app.post("/rest/addToMenu", async (req, res) => {
     const menuItem = req.body;
     const query = "INSERT INTO Menu VALUES(?,?,?)";
@@ -43,7 +59,9 @@ module.exports = (app, db) => {
     const status = req.body;
     const query = "UPDATE Orders SET status = ? WHERE id = ?";
     try {
-      const order = await db.all("SELECT * FROM Orders WHERE id = ?", [status.id]);
+      const order = await db.all("SELECT * FROM Orders WHERE id = ?", [
+        status.id,
+      ]);
       if (order.length <= 0) {
         res.json({ status: "order does not exists" });
         return;

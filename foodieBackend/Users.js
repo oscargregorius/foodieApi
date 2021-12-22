@@ -44,8 +44,10 @@ module.exports = (app, db) => {
     );
     if (user[0]) {
       req.session.user = user[0];
+      res.json(user[0]);
+      return;
     }
-    res.json(user[0]);
+    res.json({ status: "Wrong email/password" });
   });
 
   app.delete("/rest/logout", async (req, res) => {
@@ -59,7 +61,7 @@ module.exports = (app, db) => {
   });
 
   app.get("/rest/whoAmI", async (req, res) => {
-    if (req.session?.user && user !== null) {
+    if (req.session?.user && req.session?.user?.username !== null) {
       const user = await db.all(
         "SELECT id,username,role FROM Users WHERE username = ?",
         [req.session?.user.username]

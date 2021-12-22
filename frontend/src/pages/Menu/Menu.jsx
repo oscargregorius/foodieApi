@@ -5,10 +5,10 @@ import MenuItem from "../../components/MenuItem/MenuItem";
 import { Wrapper } from "./StyledMenu";
 const Menu = () => {
   const dispatch = useDispatch();
-  const menu = useSelector((selector) => selector.menuReducer);
+  const { menuitems } = useSelector((selector) => selector.menuReducer);
 
   useEffect(() => {
-    if (menu.length) {
+    if (menuitems?.length) {
       return;
     }
     dispatch(fetchMenu);
@@ -16,8 +16,8 @@ const Menu = () => {
 
   return (
     <Wrapper>
-      {menu?.length > 0 &&
-        menu.map((item) => <MenuItem key={item.id} item={item} />)}
+      {menuitems?.length > 0 &&
+        menuitems.map((item) => <MenuItem key={item.id} item={item} />)}
     </Wrapper>
   );
 };

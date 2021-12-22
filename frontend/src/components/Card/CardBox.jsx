@@ -1,19 +1,24 @@
 import React from "react";
-import Card from "@mui/material/Card";
-import CardContent from "@mui/material/CardContent";
+import { StyledCard, StyledCardContent } from "./StyledCardBox";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
+import { useHistory } from "react-router-dom";
 
-const CardBox = ({ title }) => {
+const CardBox = ({ title, id }) => {
+  const history = useHistory();
+
   return (
-    <Card sx={{ maxWidth: 345 }}>
+    <StyledCard
+      sx={{ maxWidth: 345 }}
+      onClick={() => history.push(`/menuitem/${id}`)}
+    >
       <CardMedia
         component="img"
         height="140"
         image="https://media.istockphoto.com/photos/food-backgrounds-table-filled-with-large-variety-of-food-picture-id1155240408?k=20&m=1155240408&s=612x612&w=0&h=Zvr3TwVQ-wlfBnvGrgJCtv-_P_LUcIK301rCygnirbk="
         alt="food"
       />
-      <CardContent>
+      <StyledCardContent>
         <Typography gutterBottom variant="h5" component="div">
           {title}
         </Typography>
@@ -21,8 +26,8 @@ const CardBox = ({ title }) => {
           Lizards are a widespread group of squamate reptiles, with over 6,000
           species, ranging across all continents except Antarctica
         </Typography>
-      </CardContent>
-    </Card>
+      </StyledCardContent>
+    </StyledCard>
   );
 };
 
