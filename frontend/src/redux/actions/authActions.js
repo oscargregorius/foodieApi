@@ -1,4 +1,5 @@
 import axios from "axios";
+import { addCart, getCart } from "../actions/cartActions";
 
 export const loginUser = async (dispatch, user) => {
   let isLoggedIn;
@@ -12,6 +13,8 @@ export const loginUser = async (dispatch, user) => {
       isLoggedIn = false;
       return;
     }
+    addCart({ userId: data.data.id });
+    getCart(dispatch, data.data.id);
     dispatch({ type: "login", payload: data.data });
   });
   return isLoggedIn;

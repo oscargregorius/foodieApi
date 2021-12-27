@@ -19,7 +19,6 @@ module.exports = (app, db) => {
     const user = req.body;
     const query = "SELECT username FROM Users WHERE username = ?";
     const userExists = await db.all(query, [user.username]);
-    console.log("???? ", userExists);
     if (userExists.length === 0) {
       const encryptedPassword = getHash(user.password);
       const role = "USER";
@@ -53,7 +52,6 @@ module.exports = (app, db) => {
   app.delete("/rest/logout", async (req, res) => {
     if (req.session.user) {
       req.session.user = null;
-      console.log("papppiii ", req.session);
       res.json({ status: "Successfully logged out" });
       return;
     }

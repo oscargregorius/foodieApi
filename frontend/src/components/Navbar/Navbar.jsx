@@ -7,8 +7,9 @@ import {
 } from "./StyledNavbar";
 import { useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { openModal } from "../../redux/actions/modalActions";
+import { openModal, openDrawer } from "../../redux/actions/modalActions";
 import { logoutUser } from "../../redux/actions/authActions";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 
 function Navbar() {
   const history = useHistory();
@@ -28,6 +29,11 @@ function Navbar() {
         {user?.role === "ADMIN" && (
           <StyledNavigation onClick={() => history.push("/allUsers")}>
             users
+          </StyledNavigation>
+        )}
+        {user && (
+          <StyledNavigation onClick={() => dispatch(openDrawer())}>
+            <ShoppingCartIcon />
           </StyledNavigation>
         )}
         {!user ? (

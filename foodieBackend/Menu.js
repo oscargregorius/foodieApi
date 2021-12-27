@@ -112,7 +112,6 @@ module.exports = (app, db) => {
     const createCart = "INSERT INTO Cart VALUES(?,?)";
     const createCartItems = "INSERT INTO CartItems VALUES(?,?,?,?,?)";
     const getCart = "SELECT * FROM Cart WHERE userId = ?";
-
     const cart = await db.all(isCart, [userId]);
     if (cart?.length <= 0) {
       await db.all(createCart, [null, userId]);
@@ -146,9 +145,26 @@ module.exports = (app, db) => {
     return;
   });
 
+  app.get("/rest/getCart/:id", async (req, res) => {
+    const userId = req.param("id");
+    const query = "SELECT * FROM Cart WHERE userId = ?";
+
+    try {
+      const cart = await db.all(query, [userId]);
+      console.log("mammi?? ", cart);
+      if (cart.length > 0) {
+        res.json(cart[0]);
+        return;
+      }
+    } catch (error) {
+      res.json({ error: "something went wrong" });
+      return;
+    }
+    res.json({ error: "something went wrong" });
+  });
+
   app.post("/rest/addToCart", async (req, res) => {
     const cart = req.body;
-    console.log("here ", cart);
     const addNewItems = "INSERT INTO CartItems VALUES(?,?,?,?,?)";
     try {
       await db.all(addNewItems, [
