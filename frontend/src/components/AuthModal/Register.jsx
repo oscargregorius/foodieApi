@@ -47,7 +47,9 @@ function Register({ handleReg }) {
     if (isRegistered === false) {
       setErrorMsg("User already exists");
       setIsError(true);
+      return;
     }
+    handleReg(false);
   };
 
   return (
