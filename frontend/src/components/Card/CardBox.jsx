@@ -13,7 +13,7 @@ import { useHistory } from "react-router-dom";
 import Button from "@mui/material/Button";
 
 const CardBox = ({ item }) => {
-  const history = useHistory();
+  const history = useHistory(); 
   const [amount, setAmount] = useState(0);
 
   const handleDecrese = () => {

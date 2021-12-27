@@ -32,6 +32,34 @@ module.exports = (app, db) => {
     }
   });
 
+  // app.post("/rest/addToCart", async (req, res) => {
+  //   const menu = req.body;
+  //   const foodId = menu.foodId;
+  //   const drinkId = menu.drinkId;
+  //   const sideId = menu.sideId;
+  //   const total = menu.total;
+  //   let order;
+
+  //   const query = "INSERT INTO Order VALUES(?,?,?,?,?,?)";
+  //   try {
+  //     order = await db.all(query, [
+  //       null,
+  //       foodId,
+  //       drinkId,
+  //       sideId,
+  //       total,
+  //       "On going",
+  //     ]);
+  //   } catch (error) {
+  //     res.json(error);
+  //   }
+  //   if (order.length <= 0) {
+  //     res.json({ status: "Something went wrong" });
+  //     return;
+  //   }
+  //   res.json(order);
+  // });
+
   app.post("/rest/addOrder", async (req, res) => {
     const menu = req.body;
     const foodId = menu.foodId;
@@ -76,5 +104,140 @@ module.exports = (app, db) => {
     } catch (error) {
       res.json({ status: error });
     }
+  });
+
+  app.post("/rest/addCart", async (req, res) => {
+    const { userId } = req.body;
+    const isCart = "SELECT * FROM Cart Where userId = ?";
+    const createCart = "INSERT INTO Cart VALUES(?,?)";
+    const createCartItems = "INSERT INTO CartItems VALUES(?,?,?,?,?)";
+    const getCart = "SELECT * FROM Cart WHERE userId = ?";
+
+    const cart = await db.all(isCart, [userId]);
+    if (cart?.length <= 0) {
+      await db.all(createCart, [null, userId]);
+      const collectedCart = await db.all(getCart, [userId]);
+      await db.all(createCartItems, [
+        null,
+        null,
+        null,
+        null,
+        collectedCart[0].id,
+      ]);
+      res.json({ status: "success" });
+      return;
+    }
+    res.json({ status: "Cart already exists" });
+    return;
+  });
+
+  app.put("/rest/updateCart", async (req, res) => {
+    const { userId, category, categoryId } = req.body;
+    const getCart = "SELECT * FROM Cart WHERE userId = ?";
+    const updateItems = `UPDATE CartItems SET ${category} = ? WHERE cartId = ?`;
+
+    const cart = await db.all(getCart, [userId]);
+    if (cart.length > 0) {
+      await db.all(updateItems, [categoryId, cart[0].id]);
+      res.json({ status: "success" });
+      return;
+    }
+    res.json({ status: "Something went wrong" });
+    return;
+  });
+
+  app.post("/rest/addToCart", async (req, res) => {
+    const cart = req.body;
+    console.log("here ", cart);
+    const addNewItems = "INSERT INTO CartItems VALUES(?,?,?,?,?)";
+    try {
+      await db.all(addNewItems, [
+        null,
+        cart.foodId,
+        cart.drinkId,
+        cart.sidesId,
+        cart.cartId,
+      ]);
+      res.json({ status: "success" });
+    } catch (error) {
+      res.json({ error: error });
+    }
+  });
+
+  app.get("/rest/getCartItems/:id", async (req, res) => {
+    const userId = req.param("id");
+    const getCart = "SELECT * FROM Cart WHERE userId = ?";
+    const getCartItems = "SELECT * FROM CartItems WHERE cartId = ?";
+
+    const cart = await db.all(getCart, [userId]);
+    if (cart.length > 0) {
+      const cartItems = await db.all(getCartItems, [cart[0].id]);
+      let food;
+      let drink;
+      let sides;
+      let total = 0;
+
+      let isFood = false;
+      let isDrinks = false;
+      let isSides = false;
+
+      for (item of cartItems) {
+        if (item.foodId) {
+          isFood = true;
+        }
+        if (item.drinkId) {
+          isDrinks = true;
+        }
+        if (item.sidesId) {
+          isSides = true;
+        }
+      }
+      if (isFood) {
+        let getFood = [];
+        for (item of cartItems) {
+          let collectFood = await db.all("SELECT * FROM Food WHERE id = ?", [
+            item.foodId,
+          ]);
+          if (collectFood.length) {
+            getFood.push(...collectFood);
+            total += collectFood[0].price;
+          }
+        }
+        food = getFood;
+      }
+      if (isDrinks) {
+        let getDrink = [];
+        for (item of cartItems) {
+          let collectDrinks = await db.all("SELECT * FROM Drink WHERE id = ?", [
+            item.drinkId,
+          ]);
+          if (collectDrinks.length) {
+            getDrink.push(...collectDrinks);
+            total += collectDrinks[0].price;
+          }
+        }
+        drink = getDrink;
+      }
+      if (isSides) {
+        let getSides = [];
+        for (item of cartItems) {
+          let collectSides = await db.all("SELECT * FROM Sides WHERE id = ?", [
+            item.sidesId,
+          ]);
+          if (collectSides.length) {
+            getSides.push(...collectSides);
+            total += collectSides[0].price;
+          }
+        }
+        sides = getSides;
+      }
+
+      const cartObj = { food: food, drink: drink, sides: sides, total: total };
+
+      res.json(cartObj);
+      return;
+    }
+    res.json({ status: "something went wrong" });
+    return;
   });
 };

@@ -26,6 +26,11 @@ export const StyledInput = styled(TextField)`
 export const StyledBtnWrapper = styled.div`
   margin-top: 1rem;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   grid-gap: 1rem;
+`;
+
+export const StyledWrongAuth = styled.p`
+  font-size: 1rem;
+  color: red;
 `;
