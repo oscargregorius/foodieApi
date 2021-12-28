@@ -133,11 +133,17 @@ module.exports = (app, db) => {
   app.put("/rest/updateCart", async (req, res) => {
     const { userId, category, categoryId } = req.body;
     const getCart = "SELECT * FROM Cart WHERE userId = ?";
-    const updateItems = `UPDATE CartItems SET ${category} = ? WHERE cartId = ?`;
+    const getItem = `SELECT * FROM CartItems WHERE cartId = ? AND ${category} = ${categoryId} AND ${category} IS NOT NULL LIMIT 1`;
+    const updateItems = `UPDATE CartItems SET ${category} = ? WHERE id = ?`;
+    const deleteEmptyRows =
+      "DELETE FROM CartItems WHERE foodId IS NULL AND drinkId IS NULL AND sidesId IS NULL";
+
+    await db.all(deleteEmptyRows);
 
     const cart = await db.all(getCart, [userId]);
     if (cart.length > 0) {
-      await db.all(updateItems, [categoryId, cart[0].id]);
+      const item = await db.all(getItem, cart[0].id);
+      await db.all(updateItems, [null, item[0].id]);
       res.json({ status: "success" });
       return;
     }
@@ -151,7 +157,6 @@ module.exports = (app, db) => {
 
     try {
       const cart = await db.all(query, [userId]);
-      console.log("mammi?? ", cart);
       if (cart.length > 0) {
         res.json(cart[0]);
         return;
@@ -184,7 +189,10 @@ module.exports = (app, db) => {
     const userId = req.param("id");
     const getCart = "SELECT * FROM Cart WHERE userId = ?";
     const getCartItems = "SELECT * FROM CartItems WHERE cartId = ?";
+    const deleteEmptyRows =
+      "DELETE FROM CartItems WHERE foodId IS NULL AND drinkId IS NULL AND sidesId IS NULL";
 
+    await db.all(deleteEmptyRows);
     const cart = await db.all(getCart, [userId]);
     if (cart.length > 0) {
       const cartItems = await db.all(getCartItems, [cart[0].id]);

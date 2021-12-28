@@ -29,9 +29,9 @@ export const getCartItems = (dispatch, id) => {
   });
 };
 
-export const addToCart = (cartItem) => {
+export const addToCart = async (cartItem) => {
   let isAddedToCart;
-  axios({
+  await axios({
     method: "POST",
     url: "/rest/addToCart",
     headers: { "Content-Type": "application/json" },
@@ -44,4 +44,23 @@ export const addToCart = (cartItem) => {
     isAddedToCart = true;
     return;
   });
+  return isAddedToCart;
+};
+
+export const updateCart = async (obj) => {
+  let isUpdatedCart;
+  await axios({
+    method: "PUT",
+    url: "/rest/updateCart",
+    headers: { "Content-Type": "application/json" },
+    data: JSON.stringify(obj),
+  }).then((data) => {
+    if (data.data?.status === "Something went wrong") {
+      isUpdatedCart = false;
+      return;
+    }
+    isUpdatedCart = true;
+    return;
+  });
+  return isUpdatedCart;
 };

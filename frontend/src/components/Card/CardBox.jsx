@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyledCard,
   StyledCardContent,
@@ -9,17 +9,49 @@ import {
 } from "./StyledCardBox";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import { useHistory } from "react-router-dom";
 import Button from "@mui/material/Button";
+import {
+  addToCart,
+  getCart,
+  updateCart,
+} from "../../redux/actions/cartActions";
+import { useSelector, useDispatch } from "react-redux";
+let setIn = false;
 
-const CardBox = ({ item }) => {
-  const history = useHistory(); 
-  const [amount, setAmount] = useState(0);
+const CardBox = ({ item, amount }) => {
+  const dispatch = useDispatch();
+  const { cart } = useSelector((sel) => sel.cartReducer);
+  const { user } = useSelector((sel) => sel.authReducer);
+  const [amounts, setAmount] = useState(0);
 
-  const handleDecrese = () => {
-    if (amount === 0) {
+  useEffect(() => {
+    if (user?.id && !setIn) {
+      setIn = true;
+      getCart(dispatch, user.id);
+    }
+  }, [user]);
+
+  const handleAddFood = async () => {
+    const obj = {
+      foodId: item.id,
+      drinkId: null,
+      sidesId: null,
+      cartId: cart.id,
+    };
+    await addToCart(obj);
+    setAmount((prev) => (prev += 1));
+  };
+
+  const handleRemoveFood = async () => {
+    if (amounts === 0) {
       return;
     }
+    const obj = {
+      userId: user.id,
+      category: "foodId",
+      categoryId: item.id,
+    };
+    await updateCart(obj);
     setAmount((prev) => (prev -= 1));
   };
 
@@ -39,15 +71,11 @@ const CardBox = ({ item }) => {
         </Typography>
       </StyledCardContent>
       <StyledButtons>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={() => setAmount((prev) => (prev += 1))}
-        >
+        <Button variant="outlined" size="small" onClick={handleAddFood}>
           +
         </Button>
-        <StyledAmount>{amount}</StyledAmount>
-        <Button variant="outlined" size="small" onClick={handleDecrese}>
+        <StyledAmount>{amounts}</StyledAmount>
+        <Button variant="outlined" size="small" onClick={handleRemoveFood}>
           -
         </Button>
       </StyledButtons>

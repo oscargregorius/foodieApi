@@ -8,18 +8,17 @@ function Cart() {
   const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
   const { openDrawer } = useSelector((s) => s.modalReducer);
-  const cart = useSelector((s) => s.cartReducer);
+  const { cartItems } = useSelector((s) => s.cartReducer);
   const { user } = useSelector((s) => s.authReducer);
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
 
   useEffect(() => {
-    if (user?.id) {
-      console.log("ja hello? ", cart);
+    if (user?.id && openDrawer) {
       getCartItems(dispatch, user.id);
     }
-  }, [user]);
+  }, [openDrawer]);
 
   return (
     <StyledDrawer
@@ -30,6 +29,10 @@ function Cart() {
     >
       <StyledContent>
         <StyledTitle>Shopping cart</StyledTitle>
+        {cartItems?.food &&
+          cartItems.food.map((item, index) => (
+            <p key={item.id + index}>{item.title}</p>
+          ))}
       </StyledContent>
     </StyledDrawer>
   );
