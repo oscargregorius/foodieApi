@@ -18,11 +18,12 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 let setIn = false;
 
-const CardBox = ({ item, amount }) => {
+const CardBox = ({ item }) => {
   const dispatch = useDispatch();
   const { cart } = useSelector((sel) => sel.cartReducer);
+  const { cartItems } = useSelector((sel) => sel.cartReducer);
   const { user } = useSelector((sel) => sel.authReducer);
-  const [amounts, setAmount] = useState(0);
+  const [amount, setAmount] = useState(0);
 
   useEffect(() => {
     if (user?.id && !setIn) {
@@ -31,6 +32,22 @@ const CardBox = ({ item, amount }) => {
     }
   }, [user]);
 
+  useEffect(() => {
+    calcAmountOfItems();
+  }, [cartItems?.food]);
+
+  const calcAmountOfItems = () => {
+    let countedAmount = 0;
+    if (cartItems?.food) {
+      for (const food of cartItems.food) {
+        if (food.id === item.id) {
+          countedAmount += 1;
+        }
+      }
+    }
+    setAmount(countedAmount);
+  };
+
   const handleAddFood = async () => {
     const obj = {
       foodId: item.id,
@@ -38,12 +55,11 @@ const CardBox = ({ item, amount }) => {
       sidesId: null,
       cartId: cart.id,
     };
-    await addToCart(obj);
-    setAmount((prev) => (prev += 1));
+    await addToCart(obj, dispatch, user.id);
   };
 
   const handleRemoveFood = async () => {
-    if (amounts === 0) {
+    if (amount === 0) {
       return;
     }
     const obj = {
@@ -51,35 +67,38 @@ const CardBox = ({ item, amount }) => {
       category: "foodId",
       categoryId: item.id,
     };
-    await updateCart(obj);
-    setAmount((prev) => (prev -= 1));
+    await updateCart(obj, dispatch, user.id);
   };
 
   return (
-    <StyledCard sx={{ maxWidth: 345 }}>
-      <CardMedia component="img" height="140" image={item.img} alt="food" />
-      <StyledCardContent>
-        <Typography gutterBottom variant="h5" component="div">
-          {item.title}
-        </Typography>
-        <StyledCat>
-          Category: {<StyledText>{item.category}</StyledText>}
-        </StyledCat>
-        <Typography variant="body2" color="text.secondary">
-          Lizards are a widespread group of squamate reptiles, with over 6,000
-          species, ranging across all continents except Antarctica
-        </Typography>
-      </StyledCardContent>
-      <StyledButtons>
-        <Button variant="outlined" size="small" onClick={handleAddFood}>
-          +
-        </Button>
-        <StyledAmount>{amounts}</StyledAmount>
-        <Button variant="outlined" size="small" onClick={handleRemoveFood}>
-          -
-        </Button>
-      </StyledButtons>
-    </StyledCard>
+    <>
+      {cartItems && (
+        <StyledCard sx={{ maxWidth: 345 }}>
+          <CardMedia component="img" height="140" image={item.img} alt="food" />
+          <StyledCardContent>
+            <Typography gutterBottom variant="h5" component="div">
+              {item.title}
+            </Typography>
+            <StyledCat>
+              Category: {<StyledText>{item.category}</StyledText>}
+            </StyledCat>
+            <Typography variant="body2" color="text.secondary">
+              Lizards are a widespread group of squamate reptiles, with over
+              6,000 species, ranging across all continents except Antarctica
+            </Typography>
+          </StyledCardContent>
+          <StyledButtons>
+            <Button variant="outlined" size="small" onClick={handleAddFood}>
+              +
+            </Button>
+            <StyledAmount>{amount}</StyledAmount>
+            <Button variant="outlined" size="small" onClick={handleRemoveFood}>
+              -
+            </Button>
+          </StyledButtons>
+        </StyledCard>
+      )}
+    </>
   );
 };
 

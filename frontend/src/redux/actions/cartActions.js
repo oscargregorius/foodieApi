@@ -29,7 +29,7 @@ export const getCartItems = (dispatch, id) => {
   });
 };
 
-export const addToCart = async (cartItem) => {
+export const addToCart = async (cartItem, dispatch, userId) => {
   let isAddedToCart;
   await axios({
     method: "POST",
@@ -42,12 +42,13 @@ export const addToCart = async (cartItem) => {
       return;
     }
     isAddedToCart = true;
+    getCartItems(dispatch, userId);
     return;
   });
   return isAddedToCart;
 };
 
-export const updateCart = async (obj) => {
+export const updateCart = async (obj, dispatch, userId) => {
   let isUpdatedCart;
   await axios({
     method: "PUT",
@@ -60,6 +61,7 @@ export const updateCart = async (obj) => {
       return;
     }
     isUpdatedCart = true;
+    getCartItems(dispatch, userId);
     return;
   });
   return isUpdatedCart;
