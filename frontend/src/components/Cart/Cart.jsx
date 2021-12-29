@@ -1,8 +1,20 @@
-import React, { useEffect } from "react";
-import { StyledDrawer, StyledContent, StyledTitle } from "./StyledCart";
+import React, { useEffect, useState } from "react";
+import {
+  StyledDrawer,
+  StyledContent,
+  StyledTitle,
+  StyledType,
+  StyledItemWrapper,
+  StyledImg,
+  StyledItemText,
+  StyledAmountText,
+  StyledAmountWrapper,
+  StyledBtn,
+} from "./StyledCart";
 import { useSelector, useDispatch } from "react-redux";
 import { openDrawer as opDrawer } from "../../redux/actions/modalActions";
 import { getCartItems } from "../../redux/actions/cartActions";
+import CartItem from "../CartItem/CartItem";
 
 function Cart() {
   const dispatch = useDispatch();
@@ -10,6 +22,7 @@ function Cart() {
   const { openDrawer } = useSelector((s) => s.modalReducer);
   const { cartItems } = useSelector((s) => s.cartReducer);
   const { user } = useSelector((s) => s.authReducer);
+  const [filteredList, setFilteredList] = useState(null);
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
   };
@@ -17,6 +30,29 @@ function Cart() {
   useEffect(() => {
     if (user?.id && openDrawer) {
       getCartItems(dispatch, user.id);
+      if (cartItems?.food) {
+        let arr = [];
+        setFilteredList(
+          cartItems?.food.reduce((a, b, c) => {
+            if (a.length <= 0) {
+              arr.push(b);
+              arr[arr.length - 1].amount = 1;
+              // item.amount = 1;
+            }
+            const fountItem = arr.find((item) => item.id === b.id);
+            if (!fountItem) {
+              arr.push(b);
+              arr[arr.length - 1].amount = 1;
+              // item.amount = 1;
+            }
+            if (fountItem && c !== 0) {
+              fountItem.amount =
+                fountItem.amount > 0 ? fountItem.amount + 1 : 2;
+            }
+            return arr;
+          }, arr)
+        );
+      }
     }
   }, [openDrawer]);
 
@@ -29,10 +65,9 @@ function Cart() {
     >
       <StyledContent>
         <StyledTitle>Shopping cart</StyledTitle>
-        {cartItems?.food &&
-          cartItems.food.map((item, index) => (
-            <p key={item.id + index}>{item.title}</p>
-          ))}
+        <StyledType>food</StyledType>
+        {filteredList &&
+          filteredList.map((item) => <CartItem key={item.id} item={item} />)}
       </StyledContent>
     </StyledDrawer>
   );
