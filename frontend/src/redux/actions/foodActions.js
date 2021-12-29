@@ -7,7 +7,7 @@ export const getFood = (dispatch) => {
 };
 
 export const getDrinks = (dispatch) => {
-  axios.get("rest/drinks").then((data) => {
+  axios.get("rest/drink").then((data) => {
     dispatch({ type: "drinks", payload: data.data });
   });
 };

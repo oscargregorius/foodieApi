@@ -18,7 +18,7 @@ import {
 import { useSelector, useDispatch } from "react-redux";
 let setIn = false;
 
-const CardBox = ({ item }) => {
+const CardBox = ({ item, type }) => {
   const dispatch = useDispatch();
   const { cart } = useSelector((sel) => sel.cartReducer);
   const { cartItems } = useSelector((sel) => sel.cartReducer);
@@ -33,14 +33,14 @@ const CardBox = ({ item }) => {
   }, [user]);
 
   useEffect(() => {
-    calcAmountOfItems();
-  }, [cartItems?.food]);
+    calcAmountOfItems(type);
+  }, [cartItems?.[type]]);
 
-  const calcAmountOfItems = () => {
+  const calcAmountOfItems = (typed) => {
     let countedAmount = 0;
-    if (cartItems?.food) {
-      for (const food of cartItems.food) {
-        if (food.id === item.id) {
+    if (cartItems?.[typed]) {
+      for (const type of cartItems[typed]) {
+        if (type.id === item.id) {
           countedAmount += 1;
         }
       }
@@ -48,23 +48,23 @@ const CardBox = ({ item }) => {
     setAmount(countedAmount);
   };
 
-  const handleAddFood = async () => {
+  const handleAddItem = async () => {
     const obj = {
-      foodId: item.id,
-      drinkId: null,
-      sidesId: null,
+      foodId: type === "food" ? item.id : null,
+      drinkId: type === "drink" ? item.id : null,
+      sidesId: type === "sides" ? item.id : null,
       cartId: cart.id,
     };
     await addToCart(obj, dispatch, user.id);
   };
 
-  const handleRemoveFood = async () => {
+  const handleRemoveItem = async () => {
     if (amount === 0) {
       return;
     }
     const obj = {
       userId: user.id,
-      category: "foodId",
+      category: `${type}Id`,
       categoryId: item.id,
     };
     await updateCart(obj, dispatch, user.id);
@@ -74,7 +74,7 @@ const CardBox = ({ item }) => {
     <>
       {cartItems && (
         <StyledCard sx={{ maxWidth: 345 }}>
-          <CardMedia component="img" height="140" image={item.img} alt="food" />
+          <CardMedia component="img" height="140" image={item.img} alt="menu" />
           <StyledCardContent>
             <Typography gutterBottom variant="h5" component="div">
               {item.title}
@@ -88,11 +88,11 @@ const CardBox = ({ item }) => {
             </Typography>
           </StyledCardContent>
           <StyledButtons>
-            <Button variant="outlined" size="small" onClick={handleAddFood}>
+            <Button variant="outlined" size="small" onClick={handleAddItem}>
               +
             </Button>
             <StyledAmount>{amount}</StyledAmount>
-            <Button variant="outlined" size="small" onClick={handleRemoveFood}>
+            <Button variant="outlined" size="small" onClick={handleRemoveItem}>
               -
             </Button>
           </StyledButtons>

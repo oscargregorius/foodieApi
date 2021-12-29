@@ -26,7 +26,7 @@ function Food() {
       <ToggleMenu selected="food" />
       <StyledFoodWrapper>
         {food?.length &&
-          food.map((item) => <CardBox key={item.id} item={item} />)}
+          food.map((item) => <CardBox key={item.id} item={item} type="food" />)}
       </StyledFoodWrapper>
     </StyledWrapper>
   );

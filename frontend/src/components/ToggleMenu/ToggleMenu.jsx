@@ -1,9 +1,13 @@
 import React from "react";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
+import { useSelector } from "react-redux";
 import { StyledWrapper } from "./StyledToggleMenu";
+import { useHistory } from "react-router-dom";
 
 function ToggleMenu({ selected }) {
+  const history = useHistory();
+  const { cartItems } = useSelector((sel) => sel.cartReducer);
   const [alignment, setAlignment] = React.useState(selected);
 
   const handleAlignment = (event, newAlignment) => {
@@ -19,30 +23,32 @@ function ToggleMenu({ selected }) {
         aria-label="text alignment"
       >
         <ToggleButton
+          onClick={() => history.push("/food")}
           value="food"
           aria-label="left aligned"
-          disabled={selected === "food" ? false : true}
+          disabled={false}
         >
           Food
         </ToggleButton>
         <ToggleButton
+          onClick={() => history.push("/drinks")}
           value="drinks"
           aria-label="centered"
-          disabled={selected === "drinks" ? false : true}
+          disabled={cartItems?.food ? false : true}
         >
           Drinks
         </ToggleButton>
         <ToggleButton
           value="sides"
           aria-label="right aligned"
-          disabled={selected === "sides" ? false : true}
+          disabled={cartItems?.drink ? false : true}
         >
           Sides
         </ToggleButton>
         <ToggleButton
           value="order"
           aria-label="justified"
-          disabled={selected === "order" ? false : true}
+          disabled={cartItems?.sides ? false : true}
         >
           Order
         </ToggleButton>
